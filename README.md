@@ -1,0 +1,1 @@
+Svelte version of my personal [pluoro](https://pluoro.com) website
