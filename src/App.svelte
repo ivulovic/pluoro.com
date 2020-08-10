@@ -1,11 +1,33 @@
 <script>
-  // import { Route } from "tinro";
+  import { Route } from "tinro";
   import { getCookie } from "./utils/cookie";
   import Header from "./components/Header.svelte";
   import NotFound from "./containers/NotFound.svelte";
   import Home from "./containers/Home/Home.svelte";
+  import Apps from "./containers/Apps/Apps.svelte";
+  import { onMount } from "svelte";
+  import request, {
+    makeApiUrl,
+    makeGetReq,
+    makeAuthUrl,
+  } from "./utils/request";
 
-  const isLoggedIn = !!getCookie("TestAuthorization");
+  let user = {
+    isLoggedIn: false,
+  };
+
+  onMount(async () => {
+    try {
+      const res = await request(makeAuthUrl(`/account/info`), makeGetReq());
+      user = {
+        ...res,
+        isLoggedIn: true,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
   let theme = localStorage.getItem("theme") || "light";
   const onThemeChange = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -17,6 +39,7 @@
 <style>
   .base {
     margin: 0 8%;
+    overflow: hidden;
   }
   @media only screen and (max-width: 1024px) {
     .base {
@@ -43,29 +66,39 @@
     --primary: #d21e2b;
     --text: #333;
     --background: #fff;
-    --edge: #f6f6f6;
+    --edge: #e2dddd;
     --neutral: #9c9999;
+    --link: #1a73e8;
   }
   :global(.theme-dark) {
     --primary: #d21e2b;
     --text: #fff;
-    --background: #333;
-    --edge: #444;
+    --background: #0e0e0e;
+    --edge: #44444494;
     --neutral: #383636;
+    --link: #1a73e8;
   }
 </style>
 
 <div id="root" class="theme-{theme}">
   <div class="base">
-    <Header {isLoggedIn} on:themeChange={onThemeChange} />
+    <Header isLoggedIn={user.isLoggedIn} on:themeChange={onThemeChange} />
     <Home />
-    <!-- <Route>
+    <Route>
       <Route path="/">
-        <Home />
+        {#if user.isLoggedIn}
+          <Apps />
+        {:else}
+          <Home />
+        {/if}
+
+      </Route>
+      <Route path="/apps">
+        <Apps />
       </Route>
       <Route fallback>
         <NotFound />
       </Route>
-    </Route> -->
+    </Route>
   </div>
 </div>

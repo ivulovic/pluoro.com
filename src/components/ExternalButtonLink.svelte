@@ -25,4 +25,4 @@
   }
 </style>
 
-<a {href} class="button-link {type}">{title}</a>
+<a {href} tinro-ignore class="button-link {type}">{title}</a>
